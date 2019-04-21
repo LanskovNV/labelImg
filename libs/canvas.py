@@ -604,8 +604,11 @@ class Canvas(QWidget):
         pos = self.transformPos(ev.pos())
         if self.selectedShape:
             if self.selectedShape.containsPoint(pos):
-                self.zoomRequest.emit(v_delta, 0)
-                return
+                if v_delta > 0:
+                    self.zoomRequest.emit(v_delta, 0)
+                    return
+                else:
+                    return
         if Qt.ControlModifier == int(mods) and v_delta:
             self.zoomRequest.emit(v_delta, 0)
         else:
