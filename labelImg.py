@@ -667,7 +667,13 @@ class MainWindow(QMainWindow, WindowMixin):
         item = self.currentItem()
         if not item:
             return
-        text = self.labelDialog.popUp(item.text())
+        if len(self.labelHist) == 2:
+            if item.text() == self.labelHist[0]:
+                item.setText(self.labelHist[1])
+            else:
+                item.setText(self.labelHist[0])
+        else:
+            text = self.labelDialog.popUp(item.text())
         if text is not None:
             item.setText(text)
             item.setBackground(generateColorByText(text))
