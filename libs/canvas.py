@@ -22,7 +22,7 @@ CURSOR_GRAB = Qt.OpenHandCursor
 
 
 class Canvas(QWidget):
-    zoomRequest = pyqtSignal(int)
+    zoomRequest = pyqtSignal(int, int)
     scrollRequest = pyqtSignal(int, int)
     newShape = pyqtSignal()
     selectionChanged = pyqtSignal(bool)
@@ -209,7 +209,6 @@ class Canvas(QWidget):
 
     def mousePressEvent(self, ev):
         pos = self.transformPos(ev.pos())
-
         if ev.button() == Qt.LeftButton:
             if self.drawing():
                 self.handleDrawing(pos)
@@ -295,6 +294,8 @@ class Canvas(QWidget):
         if self.canCloseShape() and len(self.current) > 3:
             self.current.popPoint()
             self.finalise()
+        else:
+            self.zoomRequest.emit(10, 1)
 
     def selectShape(self, shape):
         self.deSelectShape()
@@ -599,8 +600,14 @@ class Canvas(QWidget):
             v_delta = delta.y()
 
         mods = ev.modifiers()
+
+        pos = self.transformPos(ev.pos())
+        if self.selectedShape:
+            if self.selectedShape.containsPoint(pos):
+                self.zoomRequest.emit(v_delta, 0)
+                return
         if Qt.ControlModifier == int(mods) and v_delta:
-            self.zoomRequest.emit(v_delta)
+            self.zoomRequest.emit(v_delta, 0)
         else:
             v_delta and self.scrollRequest.emit(v_delta, Qt.Vertical)
             h_delta and self.scrollRequest.emit(h_delta, Qt.Horizontal)
