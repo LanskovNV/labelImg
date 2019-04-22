@@ -669,9 +669,9 @@ class MainWindow(QMainWindow, WindowMixin):
             return
         if len(self.labelHist) == 2:
             if item.text() == self.labelHist[0]:
-                item.setText(self.labelHist[1])
+                text = self.labelHist[1]
             else:
-                item.setText(self.labelHist[0])
+                text = self.labelHist[0]
         else:
             text = self.labelDialog.popUp(item.text())
         if text is not None:
