@@ -895,9 +895,9 @@ class MainWindow(QMainWindow, WindowMixin):
     def addZoom(self, increment=10):
         self.setZoom(self.zoomWidget.value() + increment)
 
-    def zoomRequest(self, delta, isDoubleClick):
-        if isDoubleClick:
-            self.setZoom(delta)
+    def zoomRequest(self, delta, isBack):
+        if isBack:
+            self.setFitWindow()
         else:
             # get the current scrollbar positions
             # calculate the percentages ~ coordinates
@@ -935,7 +935,7 @@ class MainWindow(QMainWindow, WindowMixin):
 
             # zoom in
             units = delta / (8 * 15)
-            scale = 10
+            scale = 40
             self.addZoom(scale * units)
 
             # get the difference in scrollbar values

@@ -294,8 +294,13 @@ class Canvas(QWidget):
         if self.canCloseShape() and len(self.current) > 3:
             self.current.popPoint()
             self.finalise()
+        if self.selectedShape:
+            pos = self.transformPos(ev.pos())
+            if self.selectedShape.containsPoint(pos):
+                self.zoomRequest.emit(480, 0)
         else:
-            self.zoomRequest.emit(10, 1)
+            self.zoomRequest.emit(0, 1)
+
 
     def selectShape(self, shape):
         self.deSelectShape()
