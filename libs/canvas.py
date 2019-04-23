@@ -22,7 +22,7 @@ CURSOR_GRAB = Qt.OpenHandCursor
 
 
 class Canvas(QWidget):
-    zoomRequest = pyqtSignal(int, int)
+    zoomRequest = pyqtSignal(float, float, int)
     scrollRequest = pyqtSignal(int, int)
     newShape = pyqtSignal()
     selectionChanged = pyqtSignal(bool)
@@ -159,17 +159,18 @@ class Canvas(QWidget):
             return
 
         # Polygon/Vertex moving.
-        if Qt.LeftButton & ev.buttons():
-            if self.selectedVertex():
-                self.boundedMoveVertex(pos)
-                self.shapeMoved.emit()
-                self.repaint()
-            elif self.selectedShape and self.prevPoint:
-                self.overrideCursor(CURSOR_MOVE)
-                self.boundedMoveShape(self.selectedShape, pos)
-                self.shapeMoved.emit()
-                self.repaint()
-            return
+        if Qt.ControlModifier == int(ev.modifiers()):
+            if Qt.LeftButton & ev.buttons():
+                if self.selectedVertex():
+                    self.boundedMoveVertex(pos)
+                    self.shapeMoved.emit()
+                    self.repaint()
+                elif self.selectedShape and self.prevPoint:
+                    self.overrideCursor(CURSOR_MOVE)
+                    self.boundedMoveShape(self.selectedShape, pos)
+                    self.shapeMoved.emit()
+                    self.repaint()
+                return
 
         # Just hovering over the canvas, 2 posibilities:
         # - Highlight shapes
@@ -297,9 +298,9 @@ class Canvas(QWidget):
         if self.selectedShape:
             pos = self.transformPos(ev.pos())
             if self.selectedShape.containsPoint(pos):
-                self.zoomRequest.emit(480, 0)
+                self.zoomRequest.emit(pos.x(), pos.y(), 2)
         else:
-            self.zoomRequest.emit(0, 1)
+            self.zoomRequest.emit(0, 0, 1)
 
 
     def selectShape(self, shape):
@@ -606,16 +607,8 @@ class Canvas(QWidget):
 
         mods = ev.modifiers()
 
-        pos = self.transformPos(ev.pos())
-        if self.selectedShape:
-            if self.selectedShape.containsPoint(pos):
-                if v_delta > 0:
-                    self.zoomRequest.emit(v_delta, 0)
-                    return
-                else:
-                    return
         if Qt.ControlModifier == int(mods) and v_delta:
-            self.zoomRequest.emit(v_delta, 0)
+            self.zoomRequest.emit(v_delta, 0, 0)
         else:
             v_delta and self.scrollRequest.emit(v_delta, Qt.Vertical)
             h_delta and self.scrollRequest.emit(h_delta, Qt.Horizontal)

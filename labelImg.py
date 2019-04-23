@@ -895,9 +895,45 @@ class MainWindow(QMainWindow, WindowMixin):
     def addZoom(self, increment=10):
         self.setZoom(self.zoomWidget.value() + increment)
 
-    def zoomRequest(self, delta, isBack):
-        if isBack:
+    def zoomRequest(self, delta, delta_y, isBack):
+        if isBack == 1:
             self.setFitWindow()
+        elif isBack == 2:
+            # get the current scrollbar positions
+            # calculate the percentages ~ coordinates
+            h_bar = self.scrollBars[Qt.Horizontal]
+            v_bar = self.scrollBars[Qt.Vertical]
+
+            # get the current maximum, to know the difference after zooming
+            h_bar_max = h_bar.maximum()
+            v_bar_max = v_bar.maximum()
+
+            # zoom in
+            units = delta / (8 * 15)
+            scale = 40
+            self.addZoom(scale * units)
+
+            # get the difference in scrollbar values
+            # this is how far we can move
+            d_h_bar_max = h_bar.maximum() - h_bar_max
+            d_v_bar_max = v_bar.maximum() - v_bar_max
+
+            # just for improve offsets
+            img_w = self.image.width()
+            img_h = self.image.height()
+            move_x = delta / img_w
+            move_y = delta_y / img_h
+
+            sign_x = 1 if move_x > 0.5 else -1
+            sign_y = 1 if move_y > 0.5 else -1
+
+            # get the new scrollbar values
+            # here delta = cursor.pos.x(), delta_y = cursor.pos.x(), cursor from canvas/mouseDoubleClickEvent
+            new_h_bar_value = move_x * d_h_bar_max + sign_x * 300
+            new_v_bar_value = move_y * d_v_bar_max + sign_y * 150
+
+            h_bar.setValue(new_h_bar_value)
+            v_bar.setValue(new_v_bar_value)
         else:
             # get the current scrollbar positions
             # calculate the percentages ~ coordinates
